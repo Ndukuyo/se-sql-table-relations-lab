@@ -1,4 +1,3 @@
-
 # STEP 0
 
 # SQL Library and Pandas Library
@@ -22,7 +21,7 @@ df_boston = pd.read_sql("""
 # STEP 2
 # Are there any offices that have zero employees?
 df_zero_emp = pd.read_sql("""
-    SELECT o.officeCode, o.city, COUNT(e.employeeNumber) as employee_count
+    SELECT o.officeCode, o.city
     FROM offices o
     LEFT JOIN employees e ON o.officeCode = e.officeCode
     GROUP BY o.officeCode, o.city
@@ -56,7 +55,7 @@ df_payment = pd.read_sql("""
     SELECT c.contactFirstName, c.contactLastname, p.amount, p.paymentDate
     FROM customers c
     JOIN payments p ON c.customerNumber = p.customerNumber
-    ORDER BY CAST(p.amount AS REAL) DESC
+    ORDER BY p.amount DESC
 """, conn)
 
 # STEP 6
@@ -74,7 +73,7 @@ df_credit = pd.read_sql("""
 # STEP 7
 # Return product name, count of orders, and total units sold, sorted by total units descending.
 df_product_sold = pd.read_sql("""
-    SELECT p.productName, COUNT(od.orderNumber) as numorders, SUM(od.quantityOrdered) as totalunits
+    SELECT p.productName, COUNT(DISTINCT od.orderNumber) as numorders, SUM(od.quantityOrdered) as totalunits
     FROM products p
     JOIN orderdetails od ON p.productCode = od.productCode
     GROUP BY p.productCode, p.productName
@@ -95,7 +94,7 @@ df_total_customers = pd.read_sql("""
 # STEP 9
 # Return count of customers per office, with office code and city.
 df_customers = pd.read_sql("""
-    SELECT o.officeCode, o.city, COUNT(c.customerNumber) as n_customers
+    SELECT o.officeCode, o.city, COUNT(DISTINCT c.customerNumber) as n_customers
     FROM offices o
     LEFT JOIN employees e ON o.officeCode = e.officeCode
     LEFT JOIN customers c ON e.employeeNumber = c.salesRepEmployeeNumber
@@ -120,6 +119,7 @@ df_under_20 = pd.read_sql("""
         GROUP BY p2.productCode
         HAVING COUNT(DISTINCT ord2.customerNumber) < 20
     )
+    ORDER BY e.firstName
 """, conn)
 
 # Close the connection
